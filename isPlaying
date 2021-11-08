@@ -1,0 +1,9 @@
+#! /bin/bash
+mpc=$(mpc | grep playing) 
+if [ -z "$mpc" ]
+then 
+    mpc play 
+else
+    mpc pause
+
+fi

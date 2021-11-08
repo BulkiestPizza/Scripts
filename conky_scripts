@@ -1,0 +1,5 @@
+# /bin/bash
+
+conkyrunning=exec pidof conky
+
+[ -z "$conkyrunning" ] && killall conky || exec conky
