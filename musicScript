@@ -1,0 +1,73 @@
+#! /bin/bash
+
+mpdRunning=$(pgrep -x mpd) 
+ncmpcpp=$(pgrep -x ncmpcpp)
+mpc=$(mpc | grep playing) 
+
+
+if [ $1 == playPause ]
+then
+    if [ -z "$mpc" ]
+    then 
+        mpc play 
+    else
+        mpc pause
+    fi
+    elif [ $1 == startMusic ]
+    then
+        if [ -z "$mpdRunning" ]  
+        then
+            mpd
+            if [ -z "$ncmpcpp" ]
+            then 
+                alacritty -e ncmpcpp
+            fi
+        else
+            killall mpd
+            if [ -n "$ncmpcpp" ]
+            then 
+            killall alacritty
+            fi
+        fi
+fi
+  
+
+# File Converter  
+
+if [ $1 == converter ] 
+then 
+    echo "What is the original Format?, use .Filename (e.g ogg, mp3, flac) instead of actual name" 
+    read Format
+        if [[ $Format == .* ]]
+        then 
+            echo "Please exclude the ."
+            exit 
+        fi
+        if [[ ! $Format =~ ^(ogg|mp3|flac|wav|aac)$ ]];
+        then 
+            echo "Please change the audio format, if what you have selected is compatiable with ffmpeg, please post an issue on https://github.com/BulkiestPizza/Scripts"
+            exit  
+        fi
+    echo "What is the Format you wish to convert to, also use the .Filename (e.g ogg, mp3, flac)"
+    read Output
+     if [[ $Output == .* ]]
+    then 
+        echo "Please exclude the ."
+        exit 
+    fi
+    if [[ ! $Output =~ ^(ogg|mp3|flac|wav|aac)$ ]];
+    then 
+        echo "Please change the audio format, if what you have selected is compatiable with ffmpeg, please post an issue on https://github.com/BulkiestPizza/Scripts"
+        exit  
+    fi
+    echo "This will convert ALL the files in the current directory, continue? (y/N)"
+    read Y
+        if [ ! $Y = y ]
+        then 
+            exit  
+        fi
+    for i in ./*.$Format; do ffmpeg -i "$i" "${i%.*}".$Output; done
+    exit 
+
+fi
+        
