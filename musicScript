@@ -38,18 +38,20 @@ fi
 
 function convertNoToDir {
     dirNo="$dir"
-    no1=1
-    placeHolder=$(printf "%${dirNo}s");dir=${placeHolder// //*}
-    
-    if [ "$dirNo" -ge 2 ] 
-    then 
-        dir+=${placeHolder// /" ./*" }
-    fi
+    dir=
+    while [ "$dirNo" -ge 1 ]
+    do
+        dir+=.
+        placeHolder=$(printf "%${dirNo}s");dir+=${placeHolder// //*}
+        dir+=.$OrgFormat" "
+        dirNo=$((dirNo-1))
+        echo $dir
+    done
 }
 
 if [ "$1" == converter ] 
 then 
-    echo "What is the original Format?, use .Filename (e.g .ogg, .mp3, .flac) instead of actual name" 
+    echo "What is the original Format?, use .Filename (e.g ogg, mp3, flac)" 
     
     read -r OrgFormat
     
@@ -65,7 +67,6 @@ then
     
     read -r dir
     convertNoToDir
-    echo $dir
     echo "This will convert ALL the files in the current directory/ies selected continue? (y/N)"
     
     read -r Y
@@ -74,7 +75,7 @@ then
             exit  
         fi
 
-        for i in .$dir."$OrgFormat" ; do ffmpeg -i "$i" "${i%.*}"."$Output"; done
+        for i in $dir ; do ffmpeg -i "$i" "${i%.*}"."$Output"; done
         exit 
 fi
         
