@@ -34,6 +34,19 @@ if [ $1 == startMusic ]
 fi
 
 # File Converter  
+
+
+function convertNoToDir {
+    dirNo="$dir"
+    no1=1
+    placeHolder=$(printf "%${dirNo}s");dir=${placeHolder// //*}
+    
+    if [ "$dirNo" -ge 2 ] 
+    then 
+        dir+=${placeHolder// /" ./*" }
+    fi
+}
+
 if [ "$1" == converter ] 
 then 
     echo "What is the original Format?, use .Filename (e.g .ogg, .mp3, .flac) instead of actual name" 
@@ -48,16 +61,20 @@ then
     
     Output="${Output//.}"
     
-    echo "This will convert ALL the files in the current directory, continue? (y/N)"
+    echo "How far down yould you like to convert the files, current directory is 1, one layer down is 2 etc,"
+    
+    read -r dir
+    convertNoToDir
+    echo $dir
+    echo "This will convert ALL the files in the current directory/ies selected continue? (y/N)"
     
     read -r Y
         if [ ! "$Y" = y ]
         then 
             exit  
         fi
-    
-    for i in ./*."$OrgFormat"; do ffmpeg -i "$i" "${i%.*}"."$Output"; done
-    exit 
 
+        for i in .$dir."$OrgFormat" ; do ffmpeg -i "$i" "${i%.*}"."$Output"; done
+        exit 
 fi
         
