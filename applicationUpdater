@@ -1,0 +1,58 @@
+#!/bin/bash
+
+filename=$HOME/.config/awesome/applicationsName.txt
+namefile=$HOME/.config/awesome/namefile.txt
+groupsFile=$HOME/.config/awesome/groups
+
+ rm "$filename"
+ rm "$namefile"
+
+# rm $groupsFiletmp
+
+for i in /usr/share/applications/*
+do
+    cat "$i" >> $filename
+    grep -m 1 "Name=" < "$i" >> "$namefile" 
+done
+    sed -i -r 's/Name=//g' "$namefile"
+
+function sortGroups () {
+	grep "Categories=" < "$filename" >>  "$groupsFile"
+	cat $groupsFile
+	# Filter list to only the names 
+	sed -i -r 's/;/\n/g' "$groupsFile" 
+	sed -i -r 's/Categories=//g' "$groupsFile"
+	sed -i -r 's/\n//g' "$groupsFile"
+
+	# sort --output="$groupsFile" "$groupsFile" 
+	
+}
+
+sortGroups
+
+# cat $groupsFile | tr ';' '\n' >> $groupsFile
+
+# SortedList=$( cat $groupsFile | sort)
+
+    # echo $SortedList
+
+
+    # #applicationPath=$(cat $filename | grep 'Exec=')
+    # applicationPath="\"${applicationPath##*=}\""
+    
+    # groups=$(cat "$i" | grep  'Categories=')
+    # groups="${groups#*=}"
+
+    # echo $groups >> $groupsFile 
+
+    # name=$( cat $i | grep -m 1 'Name=')
+    # name="${name//\"}"
+    # name="${name%%GenericName*}"
+    # name="${name##*=}"
+    # name="${name//#}"
+    # name="\"${name}\""
+    # name="{ ${name}, ${filepath} },"
+    # echo "$name" >> /home/lachlan/.config/awesome/applicationsName.txt
+
+    
+    

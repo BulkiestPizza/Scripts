@@ -43,9 +43,8 @@ function convertNoToDir {
     do
         dir+=.
         placeHolder=$(printf "%${dirNo}s");dir+=${placeHolder// //*}
-        dir+=.$OrgFormat" "
+        dir+=$OrgFormat" "
         dirNo=$((dirNo-1))
-        echo $dir
     done
 }
 
@@ -54,15 +53,15 @@ then
     echo "What is the original Format?, use .Filename (e.g ogg, mp3, flac)" 
     
     read -r OrgFormat
-    
     OrgFormat="${OrgFormat//.}"
+    OrgFormat=".${OrgFormat}"
 
     echo "What is the Format you wish to convert to, also use the .Filename (e.g ogg, mp3, flac)"
     
     read -r Output
-    
     Output="${Output//.}"
-    
+    Output=".${Output}"
+
     echo "How far down yould you like to convert the files, current directory is 1, one layer down is 2 etc,"
     
     read -r dir
@@ -75,7 +74,88 @@ then
             exit  
         fi
 
-        for i in $dir ; do ffmpeg -i "$i" "${i%.*}"."$Output"; done
+        for i in $dir ; do ffmpeg -y -i "$i" "${i%.*}$Output"; done
         exit 
 fi
-        
+
+if [ $1 == rmDuplicate ]
+then 
+    echo "What is the format you wish to remove?"
+    read -r OrgFormat
+    OrgFormat="${OrgFormat//.}"
+    OrgFormat=".${OrgFormat}"
+
+    echo "What is the format you wish to keep?"
+    read -r Output
+    Output="${Output//.}"
+    Output=".${Output}"
+    
+    echo "How far down yould you like to convert the files, current directory is 1, one layer down is 2 etc,"
+    read -r dir
+    convertNoToDir
+    
+    echo "This will delete ALL the files currently selected, continue? (y/N)"
+    read -r Y
+        if [ ! "$Y" = y ]
+        then 
+            exit  
+        fi
+    for i in $dir 
+    do 
+    name="${i//$OrgFormat}$Output" 
+    isDupe=$(find ./ -wholename "$name") 
+    if [ -n "$isDupe" ]
+    then 
+    rm "$i"
+    isDupe=""
+    fi
+    done
+fi
+
+# Change Title to the actual title 
+
+if [ $1 == "setTitle" ]
+then
+    echo "This sets the title to whatever the filename is, removing the extra words such as the author and album NO"
+    echo "What is the Format?, use .Filename (e.g ogg, mp3, flac)" 
+    
+    read -r OrgFormat
+    OrgFormat="${OrgFormat//.}"
+    OrgFormat=".${OrgFormat}"
+    
+    echo "How far down yould you like to convert the files, current directory is 1, one layer down is 2 etc,"
+    read -r dir
+    convertNoToDir
+    
+    for i in $dir
+    do 
+    title="${i//"$OrgFormat"}"
+    title="${title##*/}"
+    title="${title##*-}"
+    id3v2 -t "$title" "$i"   
+    done  
+
+fi
+
+if [ $1 == setArtist ]
+then 
+    echo "This sets the Artist AND Album artist of the song to Whatever you wish in the directories specified"
+    echo "What is the Format?, use .Filename (e.g ogg, mp3, flac)" 
+    
+    read -r OrgFormat
+    OrgFormat="${OrgFormat//.}"
+    OrgFormat=".${OrgFormat}"
+    
+    echo "Who is the Artist?"
+    read -r Artist
+
+    echo "How far down yould you like to convert the files, current directory is 1, one layer down is 2 etc,"
+    read -r dir
+    convertNoToDir
+
+    for i in $dir 
+    do 
+    id3v2 --artist "$Artist" "$i
+    "
+    done 
+fi
