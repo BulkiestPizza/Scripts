@@ -1,0 +1,16 @@
+super + Return
+	kitty
+super + shift + Return
+	firefox
+super + n
+	obsidian
+super + e
+  nemo
+super + {d, shift + r}
+	{discord, ripcord}
+super + space
+  wofi --gtk-dark --show drun
+super + a
+  texstudio
+super + shift + e
+  killall gdm
